@@ -154,7 +154,7 @@ fn main() {
     let lower_right = parse_complex(&args[4]).expect("error parsing lower right corner point");
     let mut pixels = vec![0; bounds.0 * bounds.1];
 
-    let threads = 8;
+    let threads = 16;
     let rows_per_band = bounds.1 / threads + 1;
 
     {
