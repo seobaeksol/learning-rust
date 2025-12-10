@@ -64,6 +64,42 @@ fn test_parse_complex() {
     assert_eq!(parse_complex(",-0.0625"), None);
 }
 
+/// When the pixel coordinates of the output image are given, it returns the corresponding point on the complex plane
+///
+/// `bounds` is a pair representing the with and height of the image in pixels. `pixel` is a pair (column, row) representing a point of the image. `upper_left` and `lower_right` parameters are points representing the area covered by the image on complex plane
+fn pixel_to_point(
+    bounds: (usize, usize),
+    pixel: (usize, usize),
+    upper_left: Complex<f64>,
+    lower_right: Complex<f64>,
+) -> Complex<f64> {
+    let (width, height) = (
+        lower_right.re - upper_left.re,
+        upper_left.im - lower_right.im,
+    );
+
+    Complex {
+        re: upper_left.re + pixel.0 as f64 * width / bounds.0 as f64,
+        im: upper_left.im - pixel.1 as f64 * height / bounds.1 as f64, // We subtract here because pixel.1 increases as we go downward, whereas the imaginary component increase as we go upward.
+    }
+}
+
+#[test]
+fn test_pixel_to_point() {
+    assert_eq!(
+        pixel_to_point(
+            (100, 200),
+            (25, 175),
+            Complex { re: -1.0, im: 1.0 },
+            Complex { re: 1.0, im: -1.0 }
+        ),
+        Complex {
+            re: -0.5,
+            im: -0.75
+        }
+    );
+}
+
 fn main() {
     println!("Hello, world!");
 }
