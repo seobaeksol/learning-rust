@@ -45,6 +45,18 @@ fn rough_time_to_english(rt: &RoughTime) -> String {
     }
 }
 
+fn rough_time_to_english_take(rt: RoughTime) -> String {
+    match rt {
+        RoughTime::InThePast(units, count) => {
+            format!("{count} {} ago", units.plural())
+        }
+        RoughTime::JustNow => "just now".to_string(),
+        RoughTime::InTheFuture(units, count) => {
+            format!("{count} {} ago", units.plural())
+        }
+    }
+}
+
 fn main() {
     let tmp = RoughTime::InThePast(TimeUnit::Hours, 7);
 
@@ -52,7 +64,7 @@ fn main() {
 
     println!("{string}");
 
-    let string = rough_time_to_english(&tmp);
+    let string = rough_time_to_english_take(tmp);
 
     println!("{string}");
 }
