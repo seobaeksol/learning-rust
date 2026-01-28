@@ -5,8 +5,12 @@ fn main() {
     test_fn_once();
     println!("");
 
-    println!("Test FnMut...");
+    println!("Test FnMut 1...");
     test_fn_mut();
+    println!("");
+
+    println!("Test FnMut 2...");
+    test_fn_mut2();
     println!("");
 
     println!("Test Fn...");
@@ -63,6 +67,23 @@ fn test_fn_mut() {
 
     scan_data();
     scan_data();
+}
+
+fn test_fn_mut2() {
+    let data = "Hello world!".to_string();
+    let mut collection = Vec::new();
+
+    let mut push = || {
+        collection.push(data.clone());
+    };
+
+    // assert_fn(&push); // error
+    assert_fn_mut(&push);
+    assert_fn_once(&push);
+
+    push();
+
+    println!("{:?}", collection);
 }
 
 /// `Fn` applies to closures that don't move captured values out of their body and don't mutate captured values, as well as closures that capture nothing from their environment.
