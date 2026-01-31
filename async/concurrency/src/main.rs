@@ -9,6 +9,8 @@ fn main() {
     trpl::block_on(test_future());
     println!("[Test Future with messaging]");
     trpl::block_on(test_future_messaging());
+    println!("[Test Future Timeout]");
+    trpl::block_on(test_timeout());
 }
 
 async fn test_thread() {
@@ -84,4 +86,44 @@ async fn test_future_messaging() {
     };
 
     trpl::join!(tx_fut, rx_fut, tx_fut2);
+}
+
+async fn test_timeout() {
+    let slow = async {
+        trpl::sleep(Duration::from_secs(5)).await;
+        "Finally finished"
+    };
+
+    match timeout(slow, Duration::from_secs(2)).await {
+        Ok(message) => println!("Succeeded with '{message}'"),
+        Err(duration) => {
+            println!("Failed after {} seconds", duration.as_secs())
+        }
+    }
+}
+
+// This is a custom timeout function implemented by leveraging everything learned in the course so far.
+// fn timeout<F: Future<Output = T>, T>(
+//     f: F,
+//     duration: Duration,
+// ) -> impl Future<Output = Result<T, Duration>> {
+//     async move {
+//         let duration_job = async move {
+//             trpl::sleep(duration).await;
+//             duration
+//         };
+
+//         match trpl::select(f, duration_job).await {
+//             trpl::Either::Left(result) => Ok(result),
+//             trpl::Either::Right(duration) => Err(duration),
+//         }
+//     }
+// }
+
+// This function is based on the example from the book.
+async fn timeout<F: Future>(f: F, duration: Duration) -> Result<F::Output, Duration> {
+    match trpl::select(f, trpl::sleep(duration)).await {
+        trpl::Either::Left(result) => Ok(result),
+        trpl::Either::Right(_) => Err(duration),
+    }
 }
